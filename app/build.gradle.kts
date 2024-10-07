@@ -38,18 +38,19 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.common)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    testImplementation(libs.junit)
 
     // Dependency untuk Android Networking
     implementation ("com.amitshekhar.android:android-networking:1.0.2")
-
-    // RecyclerView
+    implementation("com.ramotion.cardslider:card-slider:0.3.1")
+    implementation("com.github.bumptech.glide:glide:4.11.0")
+    implementation("com.github.florent37:diagonallayout:1.0.9")
+    implementation("com.github.ivbaranov:materialfavoritebutton:0.1.5")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.11.0")
+    implementation("com.flaviofaria:kenburnsview:1.0.7")
     implementation ("androidx.recyclerview:recyclerview:1.2.1")
     implementation(libs.transport.api)
 
-    // Unit Testing
-    testImplementation(libs.junit)
-
-    // Android Testing
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
 }
