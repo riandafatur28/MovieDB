@@ -23,11 +23,8 @@ public class MovieDBActivity extends AppCompatActivity {
             setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
             getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         }
-
-        // Mengganti fragment dengan FragmentMovie
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.framelayout, new FragmentMovie())
-                .commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.FrameLayout,
+                new FragmentMovie()).commit();
     }
 
     // Metode untuk mengatur bendera jendela
