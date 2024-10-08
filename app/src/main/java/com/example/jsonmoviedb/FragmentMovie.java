@@ -16,7 +16,6 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.google.android.datatransport.Priority;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,9 +32,9 @@ public class FragmentMovie extends Fragment implements MovieAdapter.OnSelectData
     private MovieAdapter movieAdapter;
     private ProgressDialog progressDialog;
     private List<ModelMovie> moviePopular = new ArrayList<>();
+    private ApiEndPoint ApiEndpoint = new ApiEndPoint();
 
     public FragmentMovie() {
-        // Required empty public constructor
     }
 
     @Override
@@ -49,75 +48,168 @@ public class FragmentMovie extends Fragment implements MovieAdapter.OnSelectData
         progressDialog.setMessage("Sedang menampilkan data");
 
         // Inisialisasi RecyclerView
+        movieAdapter = new MovieAdapter(getActivity(), moviePopular, this);
         rvFileRecommend = rootView.findViewById(R.id.rvfilmRecommend);
-        rvFileRecommend.setHasFixedSize(true);
+        rvFileRecommend.setAdapter(movieAdapter);
         rvFileRecommend.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
+        rvFileRecommend.setHasFixedSize(true);
+
+
 
         // Memulai pengambilan data film
+        getMovieHorizontal();
         getMovie();
 
         return rootView;
     }
 
-    private void getMovie() {
+    private void setSearchMovie(String query){
         progressDialog.show();
 
-        // Mengambil data film dari API
-        AndroidNetworking.get(ApiEndpoint.BASEURL + ApiEndpoint.SEARCH_MOVIE)
-                .addQueryParameter("api_key", ApiEndpoint.APIKEY)
-                .addQueryParameter("language", ApiEndpoint.QUERY)
+        AndroidNetworking.get(ApiEndpoint.BASEURL + ApiEndpoint.SEARCH_MOVIE + ApiEndpoint.APIKEY + ApiEndpoint.LANGUAGE + ApiEndpoint.QUERY + query).setPriority(Priority.HIGH).build().getAsJSONObject(new JSONObjectRequestListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    progressDialog.dismiss();
+                    moviePopular = new ArrayList<>();
+                    JSONArray jsonArray = response.getJSONArray("results");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        ModelMovie dataApi = new ModelMovie();
+                        SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMMM yyyy");
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                        String datePost = jsonObject.getString("release_date");
+
+                        dataApi.setId(jsonObject.getInt("id"));
+                        dataApi.setTitle(jsonObject.getString("title"));
+                        dataApi.setVoteAverage(jsonObject.getDouble("vote_average"));
+                        dataApi.setOverview(jsonObject.getString("overview"));
+                        dataApi.setReleaseDate(formatter.format(dateFormat.parse(datePost)));
+                        dataApi.setPosterPath(jsonObject.getString("poster_path"));
+                        dataApi.setBackdropPath(jsonObject.getString("backdrop_path"));
+                        dataApi.setPopularity(jsonObject.getString("popularity"));
+                        moviePopular.add(dataApi);
+                    }
+                        showMovie();
+                } catch (JSONException  | ParseException e ) {
+                    e.printStackTrace();
+                    Toast.makeText(getActivity(), "Gagal menampilkan data!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(ANError anError) {
+                progressDialog.dismiss();
+                Toast.makeText(getActivity(), "Tidak ada jaringan Internet", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void getMovieHorizontal(){
+        progressDialog.show();
+        AndroidNetworking.get(ApiEndpoint.BASEURL + ApiEndpoint.MOVIE_PLAYNOW + ApiEndpoint.APIKEY + ApiEndpoint.LANGUAGE)
                 .setPriority(Priority.HIGH)
+                .build()
                 .getAsJSONObject(new JSONObjectRequestListener() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             progressDialog.dismiss();
                             JSONArray jsonArray = response.getJSONArray("results");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                ModelMovie dataModel = new ModelMovie();
+                            Log.d("API Response", "Total movies in getMovieHorizontal: " + jsonArray.length());
 
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            for (int i = 0; i < jsonArray.length(); i++){
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                ModelMovie dataApi = new ModelMovie();
+                                SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMMM yyyy");
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Corrected format
+
                                 String datePost = jsonObject.getString("release_date");
 
-                                dataModel.setId(jsonObject.getInt("id"));
-                                dataModel.setTitle(jsonObject.getString("title"));
-                                dataModel.setVoteAverage(jsonObject.getDouble("vote_average"));
-                                dataModel.setOverview(jsonObject.getString("overview"));
-                                dataModel.setReleaseDate(dateFormat.format(dateFormat.parse(datePost)));
-                                dataModel.setPosterPath(jsonObject.getString("poster_path"));
-                                dataModel.setBackdropPath(jsonObject.getString("backdrop_path"));
-                                dataModel.setPopularity(jsonObject.getString("popularity"));
-
-                                moviePopular.add(dataModel);
+                                dataApi.setId(jsonObject.getInt("id"));
+                                dataApi.setTitle(jsonObject.getString("title"));
+                                dataApi.setVoteAverage(jsonObject.getDouble("vote_average"));
+                                dataApi.setOverview(jsonObject.getString("overview"));
+                                dataApi.setReleaseDate(formatter.format(dateFormat.parse(datePost)));
+                                dataApi.setPosterPath(jsonObject.getString("poster_path"));
+                                dataApi.setBackdropPath(jsonObject.getString("backdrop_path"));
+                                dataApi.setPopularity(jsonObject.getString("popularity"));
+                                moviePopular.add(dataApi);
                             }
                             showMovie();
                         } catch (JSONException | ParseException e) {
                             e.printStackTrace();
-                            Toast.makeText(getActivity(), "Gagal menampilkan data", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Gagal menampilkan data!", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onError(ANError anError) {
                         progressDialog.dismiss();
-                        Toast.makeText(getActivity(), "Tidak ada jaringan internet!", Toast.LENGTH_SHORT).show();
-                        // Menampilkan detail error
-                        Log.e("NetworkError", "Error Detail: " + anError.getErrorDetail());
-                        Log.e("NetworkError", "Error Body: " + anError.getErrorBody());
-                        Log.e("NetworkError", "Error Code: " + anError.getErrorCode());
+                        Log.d("API Response", "Error Code: " + anError.getErrorCode());
+                        Log.d("API Error", anError.getErrorDetail());
+                        Toast.makeText(getActivity(), "Tidak ada jaringan Internet", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+
+    private void getMovie() {
+        progressDialog.show();
+        AndroidNetworking.get(ApiEndpoint.BASEURL + ApiEndpoint.MOVIE_POPULAR + ApiEndpoint.APIKEY + ApiEndpoint.LANGUAGE)
+                .setPriority(Priority.HIGH)
+                .build()
+                .getAsJSONObject(new JSONObjectRequestListener() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            progressDialog.dismiss();
+                            JSONArray jsonArray = response.getJSONArray("results");
+                            Log.d("API Response", "Total movies in getMovieHorizontal: " + jsonArray.length());
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                ModelMovie dataApi = new ModelMovie();
+                                SimpleDateFormat formatter = new SimpleDateFormat("EEE, d MMMM yyyy");
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                String datePost = jsonObject.getString("release_date");
+
+                                dataApi.setId(jsonObject.getInt("id"));
+                                dataApi.setTitle(jsonObject.getString("title"));
+                                dataApi.setVoteAverage(jsonObject.getDouble("vote_average"));
+                                dataApi.setOverview(jsonObject.getString("overview"));
+                                dataApi.setReleaseDate(formatter.format(dateFormat.parse(datePost)));
+                                dataApi.setPosterPath(jsonObject.getString("poster_path"));
+                                dataApi.setBackdropPath(jsonObject.getString("backdrop_path"));
+                                dataApi.setPopularity(jsonObject.getString("popularity"));
+                                moviePopular.add(dataApi);
+                            }
+                            showMovie();
+                        } catch (JSONException | ParseException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getActivity(), "Gagal menampilkan data!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        progressDialog.dismiss();
+                        Log.d("API Response", "Error Code: " + anError.getErrorCode());
+                        Log.d("API Error", anError.getErrorDetail());
+                        Toast.makeText(getActivity(), "Tidak ada jaringan Internet", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
     private void showMovie() {
-        movieAdapter = new MovieAdapter(getActivity(), moviePopular, this);
-        rvFileRecommend.setAdapter(movieAdapter);
+//        movieAdapter = new MovieAdapter(getActivity(), moviePopular, this);
+//        rvFileRecommend.setAdapter(movieAdapter);
         movieAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onSelected(ModelMovie modelMovie) {
-        // Implement action when a movie is selected
     }
 }
