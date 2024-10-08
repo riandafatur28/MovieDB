@@ -24,7 +24,7 @@ public class JsonAPIActivity extends AppCompatActivity {
     private ListView lv;
 
     // URL to get contacts JSON
-    private static String url = "https://api.androidhive.info/contacts/";
+    private static String url = "https://run.mocky.io/v3/754665c0-0daa-4500-b6a1-315ec66cc3b4";
 
     ArrayList<HashMap<String, String>> contactList;
 
@@ -36,7 +36,7 @@ public class JsonAPIActivity extends AppCompatActivity {
 
         contactList = new ArrayList<>();
 
-        lv = (ListView) findViewById(R.id.listview);
+        lv = findViewById(R.id.listview);
 
         new GetContacts().execute();
     }
@@ -82,7 +82,6 @@ public class JsonAPIActivity extends AppCompatActivity {
                         JSONObject phone = c.getJSONObject("phone");
                         String mobile = phone.getString("mobile");
                         String home = phone.getString("home");
-                        String office = phone.getString("office");
 
                         // tmp hash map for single contact
                         HashMap<String, String> contact = new HashMap<>();

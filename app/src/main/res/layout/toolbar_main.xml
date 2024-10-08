@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="Halo, 'Arvita' Welcome to our Application"
+            android:text="Halo, 'Ilman' Welcome to our Application"
             android:textColor="@android:color/white"
             android:textSize="16sp"/>
     </RelativeLayout>

@@ -6,21 +6,22 @@
     android:background="@color/colorPrimaryDark"
     android:fitsSystemWindows="true">
 
-    <com.example.jsonmoviedb.DiagonalView
+    <com.github.florent37.diagonallayout.DiagonalLayout
         android:id="@+id/diagonalLayout"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         app:diagonal_angle="10"
         app:diagonal_direction="left"
-        app:diagonal_position="bottom">
+        app:diagonal_position="bottom"
+        >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/design_header"
             android:orientation="vertical"
             android:scaleType="fitXY"/>
-    </com.example.jsonmoviedb.DiagonalView>
+    </com.github.florent37.diagonallayout.DiagonalLayout>
     <include layout="@layout/toolbar_main" />
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -28,6 +29,6 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/FrameLayout"
+            android:id="@+id/FrameLayout"></FrameLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </RelativeLayout>
