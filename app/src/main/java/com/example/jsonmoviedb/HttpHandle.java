@@ -1,9 +1,6 @@
 package com.example.jsonmoviedb;
 
-import static androidx.fragment.app.FragmentManager.TAG;
-
 import android.util.Log;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +12,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 
 public class HttpHandle {
-    private static final String TAF = HttpHandle.class.getSimpleName(); // Gunakan TAF sebagai TAG log
+    private static final String TAG = HttpHandle.class.getSimpleName();
 
     public HttpHandle() {
     }
@@ -29,13 +26,13 @@ public class HttpHandle {
             InputStream in = new BufferedInputStream(conn.getInputStream());
             response = convertStreamToString(in);
         } catch (MalformedURLException e) {
-            Log.e(TAF, "MalformedURLException: " + e.getMessage()); // Ganti TAG dengan TAF
+            Log.e(TAG, "MalformedURLException: " + e.getMessage());
         } catch (ProtocolException e) {
-            Log.e(TAF, "ProtocolException: " + e.getMessage()); // Ganti TAG dengan TAF
+            Log.e(TAG, "ProtocolException: " + e.getMessage());
         } catch (IOException e) {
-            Log.e(TAF, "IOException: " + e.getMessage()); // Ganti TAG dengan TAF
+            Log.e(TAG, "IOException: " + e.getMessage());
         } catch (Exception e) {
-            Log.e(TAF, "Exception: " + e.getMessage()); // Ganti TAG dengan TAF
+            Log.e(TAG, "Exception: " + e.getMessage());
         }
         return response;
     }
